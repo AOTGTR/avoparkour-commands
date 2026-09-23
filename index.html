@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>avoParkourV1 แมพกระโดด — คำสั่ง</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌋</text></svg>">
+<style>
+  /* Dark only, on purpose: viewers keep this open all night. No light-mode
+     media query - one theme, easy on the eyes. */
+  :root {
+    --bg: #0d0f12;
+    --panel: #14171d;
+    --panel-2: #1b1f27;
+    --line: #262b34;
+    --text: #e8eaef;
+    --dim: #9aa3b2;
+    --help: #4ade80;
+    --prank: #f87171;
+    --set: #60a5fa;
+    --accent: #fbbf24;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", "Noto Sans Thai", system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 18px 80px; }
+  header { margin-bottom: 22px; }
+  h1 { font-size: clamp(26px, 5vw, 38px); margin: 0 0 6px; letter-spacing: -0.4px; }
+  h1 span { color: var(--accent); }
+  .sub { color: var(--dim); margin: 0; font-size: 15px; }
+
+  .searchbox { position: relative; margin: 22px 0 14px; }
+  #q {
+    width: 100%; padding: 14px 46px 14px 44px;
+    font-size: 17px; font-family: inherit; color: var(--text);
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); outline: none;
+  }
+  #q:focus { border-color: var(--accent); }
+  #q::placeholder { color: var(--dim); }
+  .searchbox .icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--dim); font-size: 17px; pointer-events: none; }
+  #ghost {
+    position: absolute; left: 0; top: 0; width: 100%; padding: 14px 46px 14px 44px;
+    font-size: 17px; font-family: inherit; color: transparent; pointer-events: none;
+    white-space: pre; overflow: hidden; border: 1px solid transparent;
+  }
+  #ghost b { color: var(--dim); font-weight: normal; }
+  .tabhint {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; color: var(--dim); border: 1px solid var(--line); border-radius: 6px;
+    padding: 2px 7px; background: var(--panel-2);
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .chip {
+    font: inherit; font-size: 14px; padding: 6px 14px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--dim); cursor: pointer;
+  }
+  .chip:hover { color: var(--text); }
+  .chip.on { color: #0d0f12; border-color: transparent; font-weight: 600; }
+  .chip.on[data-cat="all"]   { background: var(--accent); }
+  .chip.on[data-cat="help"]  { background: var(--help); }
+  .chip.on[data-cat="prank"] { background: var(--prank); }
+  .chip.on[data-cat="set"]   { background: var(--set); }
+
+  .group { margin-bottom: 26px; }
+  .group h2, .extra h2 { font-size: 15px; letter-spacing: 1.4px; text-transform: uppercase; margin: 0 0 10px; padding-left: 2px; }
+  .group[data-cat="help"]  h2 { color: var(--help); }
+  .group[data-cat="prank"] h2 { color: var(--prank); }
+  .group[data-cat="set"]   h2 { color: var(--set); }
+  .extra h2 { color: var(--dim); }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .row { display: flex; align-items: baseline; gap: 14px; padding: 12px 16px; border-top: 1px solid var(--line); cursor: pointer; }
+  .row:first-child { border-top: none; }
+  .row:hover { background: var(--panel-2); }
+  .row.copied { background: rgba(251,191,36,.14); }
+  .cmd { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 15px; white-space: nowrap; flex: 0 0 auto; }
+  .group[data-cat="help"]  .cmd { color: var(--help); }
+  .group[data-cat="prank"] .cmd { color: var(--prank); }
+  .group[data-cat="set"]   .cmd { color: var(--set); }
+  .cmd .arg { color: var(--dim); }
+  .desc { color: var(--dim); font-size: 14px; flex: 1 1 auto; }
+  .gnote { color: var(--dim); font-size: 13px; margin: 8px 2px 0; }
+  mark { background: rgba(251,191,36,.3); color: inherit; border-radius: 3px; padding: 0 2px; }
+  code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .95em; }
+
+  .extra { margin-bottom: 26px; }
+  .slots { display: grid; gap: 10px; }
+  .slot { display: grid; grid-template-columns: 30px 1fr; gap: 14px; align-items: center; padding: 11px 14px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+  .key { display: grid; place-items: center; height: 30px; border: 1px solid var(--line); border-radius: 6px; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; color: var(--accent); background: var(--panel-2); }
+  .slot p { margin: 0; font-size: 14px; }
+
+  .empty { color: var(--dim); padding: 30px 4px; text-align: center; }
+  .note { margin-top: 30px; padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); color: var(--dim); font-size: 14px; }
+  .note b { color: var(--text); font-weight: 600; }
+  footer { margin-top: 34px; color: var(--dim); font-size: 13px; text-align: center; }
+
+  @media (max-width: 620px) { .row { flex-direction: column; gap: 3px; } .cmd { white-space: normal; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>🌋 avo<span>Parkour</span>V1 แมพกระโดด — คำสั่ง</h1>
+    <p class="sub">พิมพ์ค้นหา แล้วกด <b>Tab</b> เพื่อเติมคำสั่งอัตโนมัติ · คลิกคำสั่งเพื่อคัดลอก</p>
+  </header>
+
+  <div class="searchbox">
+    <span class="icon">🔍</span>
+    <div id="ghost"></div>
+    <input id="q" type="text" placeholder="ค้นหาคำสั่ง…" autocomplete="off" spellcheck="false">
+    <span class="tabhint">Tab</span>
+  </div>
+
+  <div class="chips" id="chips">
+    <button class="chip on" data-cat="all">ทั้งหมด</button>
+    <button class="chip" data-cat="help">ช่วย</button>
+    <button class="chip" data-cat="prank">แกล้ง</button>
+    <button class="chip" data-cat="set">ตั้งค่า</button>
+  </div>
+
+  <div id="list"></div>
+
+  <div id="extras">
+    <section class="extra">
+      <h2>ไอเทมในช่อง</h2>
+      <div class="slots">
+        <div class="slot"><span class="key">8</span><p>ลูกศร — ข้ามด่าน</p></div>
+        <div class="slot"><span class="key">9</span><p>สมุด — เมนู · รีเซ็ต</p></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="note">
+    <b>เลขไม่ใส่ก็ได้</b> · เลข = วินาที (หรือจำนวน) ·
+    <code>[user]</code> = ชื่อคนส่ง · ต่อท้าย <code>reset</code> = หยุด
+  </div>
+
+  <footer>avoParkourV1 · แมพกระโดดภูเขาไฟ</footer>
+</div>
+
+<script>
+const DATA = [
+  { cat: "help", title: "ช่วย", items: [
+    { cmd: "/avop help cat",    arg: "[ด่าน] [user]",     desc: "แมวพาไปหน้า" },
+    { cmd: "/avop help spring", arg: "[วิ] [สูง] [user]", desc: "กระโดดสูง" },
+    { cmd: "/avop help shield", arg: "[วิ] [user]",       desc: "โล่กันแกล้ง" },
+    { cmd: "/avop help dash",   arg: "[วิ] [user]",       desc: "พุ่งตามทาง" },
+  ]},
+  { cat: "prank", title: "แกล้ง", items: [
+    { cmd: "/avop prank frog",   arg: "[ด่าน] [user]",    desc: "กบพาถอย" },
+    { cmd: "/avop prank tnt",    arg: "[ลูก] [user]",     desc: "ระเบิดดีดขึ้น" },
+    { cmd: "/avop prank tntz",   arg: "[ลูก] [user]",     desc: "ระเบิดดีดข้าง" },
+    { cmd: "/avop prank hiss",   arg: "[ตัว] [user]",     desc: "ครีปเปอร์" },
+    { cmd: "/avop prank bounce", arg: "[วิ|10x] [user]",  desc: "เด้งสไลม์" },
+    { cmd: "/avop prank spin",   arg: "[ครั้ง] [user]",   desc: "หันหลัง" },
+    { cmd: "/avop prank quake",  arg: "[วิ] [user]",      desc: "จอสั่น" },
+    { cmd: "/avop prank wind",   arg: "[วิ] [user]",      desc: "ลมพัด" },
+    { cmd: "/avop prank ice",    arg: "[วิ] [user]",      desc: "พื้นน้ำแข็ง" },
+    { cmd: "/avop prank web",    arg: "[ครั้ง] [user]",   desc: "ใยแมงมุม" },
+    { cmd: "/avop prank tiny",   arg: "[วิ] [user]",      desc: "ตัวจิ๋ว" },
+    { cmd: "/avop prank big",    arg: "[วิ] [user]",      desc: "ตัวยักษ์" },
+  ]},
+  { cat: "set", title: "ตั้งค่า", items: [
+    { cmd: "/avop setting", arg: "", desc: "เมนู" },
+  ]},
+];
+
+const ALL  = DATA.flatMap(g => g.items.map(i => ({ ...i, cat: g.cat })));
+const POOL = ALL.map(i => i.cmd);
+
+const listEl   = document.getElementById("list");
+const extrasEl = document.getElementById("extras");
+const qEl      = document.getElementById("q");
+const ghostEl  = document.getElementById("ghost");
+let cat = "all";
+
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+
+function hl(text, term) {
+  if (!term) return esc(text);
+  const i = text.toLowerCase().indexOf(term.toLowerCase());
+  if (i < 0) return esc(text);
+  return esc(text.slice(0, i)) + "<mark>" + esc(text.slice(i, i + term.length)) + "</mark>"
+       + esc(text.slice(i + term.length));
+}
+
+function render() {
+  const term = qEl.value.trim();
+  const low = term.toLowerCase();
+  let shown = 0;
+  listEl.innerHTML = DATA.map(g => {
+    if (cat !== "all" && cat !== g.cat) return "";
+    const rows = g.items.filter(i =>
+      !low || (i.cmd + " " + i.arg + " " + i.desc).toLowerCase().includes(low));
+    if (!rows.length) return "";
+    shown += rows.length;
+    return `<section class="group" data-cat="${g.cat}">
+      <h2>${esc(g.title)}</h2>
+      <div class="card">${rows.map(i => `
+        <div class="row" data-copy="${esc(i.cmd)}">
+          <span class="cmd">${hl(i.cmd, term)} <span class="arg">${esc(i.arg)}</span></span>
+          <span class="desc">${hl(i.desc, term)}</span>
+        </div>`).join("")}</div>
+      ${g.note && !low ? `<p class="gnote">${esc(g.note)}</p>` : ""}
+    </section>`;
+  }).join("");
+  if (!shown) listEl.innerHTML = `<div class="empty">ไม่พบคำสั่งที่ตรงกับ “${esc(term)}”</div>`;
+  extrasEl.hidden = !!low || cat !== "all";
+  drawGhost();
+}
+
+function suggestion() {
+  const v = qEl.value;
+  if (!v || v !== v.trimStart()) return null;
+  const hit = POOL.find(c => c.toLowerCase().startsWith(v.toLowerCase()) && c.length > v.length);
+  return hit || null;
+}
+
+function drawGhost() {
+  const s = suggestion();
+  ghostEl.innerHTML = s ? esc(qEl.value) + "<b>" + esc(s.slice(qEl.value.length)) + "</b>" : "";
+}
+
+qEl.addEventListener("input", render);
+qEl.addEventListener("keydown", e => {
+  if (e.key === "Tab") {
+    const s = suggestion();
+    if (s) { e.preventDefault(); qEl.value = s; render(); }
+  } else if (e.key === "ArrowRight" && qEl.selectionStart === qEl.value.length) {
+    const s = suggestion();
+    if (s) { qEl.value = s; render(); }
+  } else if (e.key === "Escape") {
+    qEl.value = ""; render();
+  }
+});
+
+document.getElementById("chips").addEventListener("click", e => {
+  const b = e.target.closest(".chip");
+  if (!b) return;
+  cat = b.dataset.cat;
+  document.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c === b));
+  render();
+});
+
+listEl.addEventListener("click", e => {
+  const row = e.target.closest(".row");
+  if (!row) return;
+  navigator.clipboard?.writeText(row.dataset.copy);
+  row.classList.add("copied");
+  setTimeout(() => row.classList.remove("copied"), 400);
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement !== qEl) { e.preventDefault(); qEl.focus(); }
+});
+
+render();
+qEl.focus();
+</script>
+</body>
+</html>
